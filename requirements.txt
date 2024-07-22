@@ -1,0 +1,9 @@
+torch
+torchvision
+torchaudio
+segment_anything
+diffusers
+transformers
+accelerate
+scipy
+safetensors
