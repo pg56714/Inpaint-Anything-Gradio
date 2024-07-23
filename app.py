@@ -196,47 +196,47 @@ def process_image_click(
     dilate_kernel_size,
     evt: gr.SelectData,
 ):
+    if clicked_points is None:
+        clicked_points = []
+
+    # print("Received click event:", evt)
+    if original_image is None:
+        # print("No image loaded.")
+        return None, clicked_points, None
+
     clicked_coords = evt.index
+    if clicked_coords is None:
+        # print("No valid coordinates received.")
+        return None, clicked_points, None
+
     x, y = clicked_coords
     label = point_prompt
     lab = 1 if label == "Foreground Point" else 0
     clicked_points.append((x, y, lab))
+    # print("Updated points list:", clicked_points)
 
-    if original_image is None:
-        return None, clicked_points, None
     input_image = np.array(original_image, dtype=np.uint8)
-
     H, W, C = input_image.shape
     input_image = HWC3(input_image)
     img = resize_image(input_image, image_resolution)
+    # print("Processed image size:", img.shape)
 
-    # Update the clicked_points
     resized_points = resize_points(clicked_points, input_image.shape, image_resolution)
     mask_click_np = get_click_mask(
         resized_points, features, orig_h, orig_w, input_h, input_w, dilate_kernel_size
     )
-
-    # Convert mask_click_np to HWC format
     mask_click_np = np.transpose(mask_click_np, (1, 2, 0)) * 255.0
-
     mask_image = HWC3(mask_click_np.astype(np.uint8))
     mask_image = cv2.resize(mask_image, (W, H), interpolation=cv2.INTER_LINEAR)
-    # mask_image = Image.fromarray(mask_image_tmp)
+    # print("Mask image prepared.")
 
-    # Draw circles for all clicked points
     edited_image = input_image
     for x, y, lab in clicked_points:
-        # Set the circle color based on the label
         color = (255, 0, 0) if lab == 1 else (0, 0, 255)
-
-        # Draw the circle
         edited_image = cv2.circle(edited_image, (x, y), 20, color, -1)
 
-    # Set the opacity for the mask_image and edited_image
     opacity_mask = 0.75
     opacity_edited = 1.0
-
-    # Combine the edited_image and the mask_image using cv2.addWeighted()
     overlay_image = cv2.addWeighted(
         edited_image,
         opacity_edited,
@@ -245,13 +245,9 @@ def process_image_click(
         0,
     )
 
-    return (
-        overlay_image,
-        # Image.fromarray(overlay_image),
-        clicked_points,
-        # Image.fromarray(mask_image),
-        mask_image,
-    )
+    no_mask_overlay = edited_image.copy()
+
+    return no_mask_overlay, overlay_image, clicked_points, mask_image
 
 
 def image_upload(image, image_resolution):
@@ -300,7 +296,7 @@ model["lama"] = build_lama_model(lama_config, lama_ckpt, device=device)
 button_size = (100, 50)
 with gr.Blocks() as demo:
     clicked_points = gr.State([])
-    origin_image = gr.State(None)
+    # origin_image = gr.State(None)
     click_mask = gr.State(None)
     features = gr.State(None)
     orig_h = gr.State(None)
@@ -311,13 +307,18 @@ with gr.Blocks() as demo:
     with gr.Row():
         with gr.Column(variant="panel"):
             with gr.Row():
-                gr.Markdown("## Input Image")
+                gr.Markdown("## Upload an image and click the region you want to edit.")
             with gr.Row():
                 source_image_click = gr.Image(
                     type="numpy",
-                    height=300,
                     interactive=True,
-                    label="Image: Upload an image and click the region you want to edit.",
+                    label="Upload and Edit Image",
+                )
+
+                image_edit_complete = gr.Image(
+                    type="numpy",
+                    interactive=False,
+                    label="Editing Complete",
                 )
             with gr.Row():
                 point_prompt = gr.Radio(
@@ -390,13 +391,13 @@ with gr.Blocks() as demo:
     source_image_click.upload(
         image_upload,
         inputs=[source_image_click, image_resolution],
-        outputs=[origin_image, features, orig_h, orig_w, input_h, input_w],
+        outputs=[source_image_click, features, orig_h, orig_w, input_h, input_w],
     )
 
     source_image_click.select(
         process_image_click,
         inputs=[
-            origin_image,
+            source_image_click,
             point_prompt,
             clicked_points,
             image_resolution,
@@ -407,26 +408,26 @@ with gr.Blocks() as demo:
             input_w,
             dilate_kernel_size,
         ],
-        outputs=[source_image_click, clicked_points, click_mask],
+        outputs=[source_image_click, image_edit_complete, clicked_points, click_mask],
         show_progress=True,
         queue=True,
     )
 
     lama.click(
         get_inpainted_img,
-        inputs=[origin_image, click_mask, image_resolution],
+        inputs=[source_image_click, click_mask, image_resolution],
         outputs=[img_rm_with_mask],
     )
 
     fill_sd.click(
         get_fill_img_with_sd,
-        inputs=[origin_image, click_mask, image_resolution, text_prompt],
+        inputs=[source_image_click, click_mask, image_resolution, text_prompt],
         outputs=[img_fill_with_mask],
     )
 
     replace_sd.click(
         get_replace_img_with_sd,
-        inputs=[origin_image, click_mask, image_resolution, text_prompt],
+        inputs=[source_image_click, click_mask, image_resolution, text_prompt],
         outputs=[img_replace_with_mask],
     )
 
@@ -436,7 +437,8 @@ with gr.Blocks() as demo:
     clear_button_image.click(
         reset,
         inputs=[
-            origin_image,
+            source_image_click,
+            image_edit_complete,
             clicked_points,
             click_mask,
             features,
@@ -445,7 +447,8 @@ with gr.Blocks() as demo:
             img_replace_with_mask,
         ],
         outputs=[
-            origin_image,
+            source_image_click,
+            image_edit_complete,
             clicked_points,
             click_mask,
             features,

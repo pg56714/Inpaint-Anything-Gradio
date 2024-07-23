@@ -1,7 +1,5 @@
 # Inpaint-Anything-Gradio
 
-Currently, there is an issue with "Upload an image and click the region you want to edit" where clicking the region causes the image to disappear. You need to click multiple times.
-
 ## Getting Started
 
 ![example1](/example/main.jpg)
@@ -14,7 +12,7 @@ conda create -n inpaint-anything python=3.10 -y
 
 conda activate inpaint-anything
 
- pip install -r lama/requirements.txt
+pip install -r lama/requirements.txt
 
 pip install -r requirements.txt
 ```
