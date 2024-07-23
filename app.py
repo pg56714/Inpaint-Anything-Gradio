@@ -40,7 +40,7 @@ def setup_args(parser):
     parser.add_argument(
         "--lama_ckpt",
         type=str,
-        default="pretrained_models/big-lama",
+        default="./pretrained_models/big-lama",
         help="The path to the lama checkpoint.",
     )
     parser.add_argument(
@@ -387,6 +387,10 @@ with gr.Blocks() as demo:
                     label="Image Replace Anything with Mask",
                     interactive=False,
                 )
+
+    gr.Markdown(
+        "Github Source Code: [Link](https://github.com/pg56714/Inpaint-Anything-Gradio)"
+    )
 
     source_image_click.upload(
         image_upload,

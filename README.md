@@ -12,8 +12,6 @@ conda create -n inpaint-anything python=3.10 -y
 
 conda activate inpaint-anything
 
-# pip install -r lama/requirements.txt
-
 pip install -r requirements.txt
 ```
 
