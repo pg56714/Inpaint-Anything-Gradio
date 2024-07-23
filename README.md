@@ -2,6 +2,8 @@
 
 ## Getting Started
 
+[HuggingFace Space](https://huggingface.co/spaces/pg56714/Inpaint-Anything)
+
 ![example1](/example/main.jpg)
 
 ## Installation
