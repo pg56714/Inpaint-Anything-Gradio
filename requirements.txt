@@ -16,16 +16,15 @@ tensorflow
 joblib
 matplotlib
 pandas
-albumentations==0.5.2
 hydra-core
 pytorch-lightning
 tabulate
-kornia==0.5.0
+kornia
 webdataset
 packaging
 wldhx.yadisk-direct
 
-gradio
+gradio>=6.16
 
 diffusers
 transformers
