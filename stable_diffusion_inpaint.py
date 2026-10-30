@@ -16,7 +16,7 @@ def fill_img_with_sd(
     img: np.ndarray, mask: np.ndarray, text_prompt: str, device="cuda"
 ):
     pipe = StableDiffusionInpaintPipeline.from_pretrained(
-        "stabilityai/stable-diffusion-2-inpainting",
+        "sd2-community/stable-diffusion-2-inpainting",
         torch_dtype=torch.float32,
     ).to(device)
     img_crop, mask_crop = crop_for_filling_pre(img, mask)
@@ -33,7 +33,7 @@ def replace_img_with_sd(
     img: np.ndarray, mask: np.ndarray, text_prompt: str, step: int = 50, device="cuda"
 ):
     pipe = StableDiffusionInpaintPipeline.from_pretrained(
-        "stabilityai/stable-diffusion-2-inpainting",
+        "sd2-community/stable-diffusion-2-inpainting",
         torch_dtype=torch.float32,
     ).to(device)
     img_padded, mask_padded, padding_factors = resize_and_pad(img, mask)

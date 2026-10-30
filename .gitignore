@@ -19,3 +19,10 @@ pretrained_models/big-lama
 results/*
 
 
+
+# Local environment, weights and training outputs
+.venv/
+pretrained_models/*
+!pretrained_models/.gitkeep
+weights/*
+!weights/.gitkeep
