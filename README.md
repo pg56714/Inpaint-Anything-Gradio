@@ -1,5 +1,7 @@
 # Inpaint-Anything-Gradio
 
+> **Security:** see [SECURITY.md](SECURITY.md) for known dependency issues.
+
 ## Getting Started
 
 [HuggingFace Space](https://huggingface.co/spaces/pg56714/Inpaint-Anything)
@@ -9,13 +11,20 @@
 ## Installation
 
 ```bash
-# Create and activate a python 3.10 environment.
-conda create -n inpaint-anything python=3.10 -y
+# Create and activate a python 3.12 environment.
+conda create -n inpaint-anything python=3.12 -y
 
 conda activate inpaint-anything
 
 pip install -r requirements.txt
 ```
+
+### Weights
+
+Download the weights and save them in the `pretrained_models` directory.
+
+- [SAM ViT-H](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth)
+- [big-lama](https://huggingface.co/smartywu/big-lama/resolve/main/big-lama.zip) (unzip it to `pretrained_models/big-lama`)
 
 ## Running the Project
 

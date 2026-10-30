@@ -3,7 +3,6 @@ import logging
 import os
 import random
 
-import albumentations as A
 import cv2
 import numpy as np
 import torch
@@ -16,7 +15,6 @@ from torch.utils.data import Dataset, IterableDataset, DataLoader, DistributedSa
 
 from saicinpainting.evaluation.data import InpaintingDataset as InpaintingEvaluationDataset, \
     OurInpaintingDataset as OurInpaintingEvaluationDataset, ceil_modulo, InpaintingEvalOnlineDataset
-from saicinpainting.training.data.aug import IAAAffine2, IAAPerspective2
 from saicinpainting.training.data.masks import get_mask_generator
 
 LOGGER = logging.getLogger(__name__)
@@ -99,6 +97,10 @@ class ImgSegmentationDataset(Dataset):
 
 
 def get_transforms(transform_variant, out_size):
+    # Imported lazily: only training needs albumentations/imgaug, inference does not.
+    import albumentations as A
+    from saicinpainting.training.data.aug import IAAAffine2, IAAPerspective2
+
     if transform_variant == 'default':
         transform = A.Compose([
             A.RandomScale(scale_limit=0.2),  # +/- 20%
